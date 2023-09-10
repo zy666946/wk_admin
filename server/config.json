@@ -1,0 +1,9 @@
+{
+    "sqlUrl": "127.0.0.1",
+    "sqlProt": 3306,
+    "sqlUserName": "root",
+    "sqlPassWord": "123456",
+    "sqlName": "admin",
+    "jwtKey": "zy666",
+    "expiresInTime": "1h"
+}

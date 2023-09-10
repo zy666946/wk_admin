@@ -67,6 +67,20 @@ const showPopup = (item) => {
     popupData.value = item
 };
 
+const changeUserInfo = async(id,username,password,email,standing,yqm,status)=>{
+    try {
+        const res = await axios({
+            method: 'post',
+            url: config.serverUrl + ':' + config.serverPort + '/changeUserInfo',
+            data:{
+                id,username,password,email,standing,yqm,status
+            }
+        })
+        console.log(res)
+    } catch (error) {
+        console.log(error.message)
+    }
+}
 
 </script>
 <template>
@@ -91,7 +105,7 @@ const showPopup = (item) => {
             <p>邀请码: {{ popupData.yqm }}</p>
             <p>账号状态：{{ !popupData.status ? '正常' : '封禁' }}</p>
             <div class="submit">
-                <van-button size='small' plain type="primary">提交</van-button>
+                <van-button size='small' plain type="primary" @click="changeUserInfo(popupData.id,popupData.username,popupData.password,popupData.email,popupData.standing,popupData.yqm,popupData.status)">提交</van-button>
             </div>
         </van-popup>
     </div>

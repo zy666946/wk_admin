@@ -16,6 +16,8 @@ const sqldb = mysql.createPool({
 })
 const app = express()
 
+
+
 //登录路由
 app.post('/login', (req, res) => {
     sqldb.query('select * from users where username=? and password=?', [req.body.userName, req.body.passWord], (error, results) => {
@@ -86,8 +88,8 @@ app.post('/register', (req, res) => {
                 //无问题开始注册 
                 else {
                     //邀请码验证
-                    sqldb.query('select * from users where yqm=?', req.body.yqm, (error, results) => { 
-                        if (!results[0]||results[0].status) {
+                    sqldb.query('select * from users where yqm=?', req.body.yqm, (error, results) => {
+                        if (!results[0] || results[0].status) {
                             res.send({
                                 status: -1,
                                 message: '邀请码无效'
@@ -99,18 +101,18 @@ app.post('/register', (req, res) => {
                                 message: '服务器错误'
                             })
                             return
-                        }else{
-                            
+                        } else {
+
                             //无问题开始注册
                             //随机邀请码
-                            const generateInviteCode =()=> {
+                            const generateInviteCode = () => {
                                 const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
                                 let code = '';
                                 for (let i = 0; i < 8; i++) {
-                                  code += chars[Math.floor(Math.random() * chars.length)];
+                                    code += chars[Math.floor(Math.random() * chars.length)];
                                 }
                                 return code;
-                              }
+                            }
 
                             sqldb.query('insert into users set ?', {
                                 username: req.body.userName,
@@ -118,7 +120,7 @@ app.post('/register', (req, res) => {
                                 email: req.body.email,
                                 boss: results[0].id,
                                 standing: results[0].yqprice,
-                                yqm : generateInviteCode(),
+                                yqm: generateInviteCode(),
                                 yqprice: 2
                             }, (error, results) => {
                                 if (error) {
@@ -146,8 +148,8 @@ app.post('/register', (req, res) => {
                             })
                         }
                     })
-                    
-                    
+
+
                 }
             })
         }
@@ -200,7 +202,7 @@ app.post('/getUserList', (req, res) => {
                     message: '服务器错误'
                 })
             } else {
-                if(results[0].id === 1){
+                if (results[0].id === 1) {
                     sqldb.query('select * from users', (error, results) => {
                         res.send({
                             status: 1,
@@ -219,7 +221,7 @@ app.post('/getUserList', (req, res) => {
                 } else {
                     res.send({
                         status: -1,
-                        message: 'token错误'
+                        message: '账号异常'
                     })
                 }
             }
@@ -232,6 +234,107 @@ app.post('/getUserList', (req, res) => {
         })
     }
 })
+//修改用户信息
+app.post('/changeUserInfo', (req, res) => {
+    if (req.user) {
+        //查验调用者身份
+        sqldb.query('select * from users where username=?', req.user.username, (error, results) => {
+            if (error) {
+                res.send({
+                    status: -1,
+                    message: '服务器错误'
+                })
+            }
+            //
+            else {
+                if (!results[0].status) {
+                    //判断修改对象是不是你的代理
+                    //查询操作对象的boss
+                    sqldb.query('select * from users where id=?', req.body.id, (error, results2) => {
+                        if (error) {
+                            res.send({
+                                status: -1,
+                                message: '服务器错误'
+                            })
+                        }
+                        else if (+results2[0].boss === +results[0].id) {
+                            //如果修改等级低于自身
+                            if (+req.body.standing < results[0].standing) {
+                                res.send({
+                                    status: -1,
+                                    message: '下级费率不能低于自己'
+                                })
+                            }
+                            else {
+                                //判断邀请码是否可用
+                                sqldb.query('select * from users where id!=? and yqm=?', [req.body.id, req.body.yqm], (error, results3) => {
+                                    if (error) {
+                                        res.send({
+                                            status: -1,
+                                            message: '服务器错误'
+                                        })
+                                    }
+                                    else if (results3[0]) {
+                                        res.send({
+                                            status: -1,
+                                            message: '邀请码已被使用'
+                                        })
+                                    }
+                                    //开始修改
+                                    else {
+
+                                        sqldb.query('update users set ? where id=?', [{
+                                            email: req.body.email,
+                                            standing: req.body.standing,
+                                            //费率修改后他的余额就应该同比缩减
+                                            money: Math.ceil(results2[0].money * (req.body.standing / results2[0].standing)),
+                                            yqm: req.body.yqm
+                                        }, req.body.id], (error, results2) => {
+                                            if (error) {
+                                                console.log(error.message)
+                                                res.send({
+                                                    status: -1,
+                                                    message: '服务器错误'
+                                                })
+                                            } else {
+                                                res.send({
+                                                    status: 1,
+                                                    message: '修改成功'
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+
+
+                            }
+                        }
+                        else {
+                            res.send({
+                                status: -1,
+                                message: '操作异常'
+                            })
+                        }
+                    })
+
+                } else {
+                    res.send({
+                        status: -1,
+                        message: '账号异常'
+                    })
+                }
+            }
+        })
+    }
+    //如果没有user参数的话（一般不会走到这一步，jwt会抛错）
+    else {
+        res.send({
+            status: -1,
+            message: 'token错误'
+        })
+    }
+})
+
 
 
 export default app

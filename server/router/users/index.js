@@ -232,21 +232,6 @@ app.post('/getUserList', (req, res) => {
         })
     }
 })
-//错误处理
-app.use((error, req, res, next) => {
-    //error.name可以获取到token解析错误时返回的报错类型
-    if (error.name === 'UnauthorizedError') {
-        res.send({
-            status: 401,
-            message: '登录失效'
-        })
-    } else {
-        console.log(error.message)
-        res.send({
-            status: 501,
-            messgae: 'server'
-        })
-    }
-})
+
 
 export default app

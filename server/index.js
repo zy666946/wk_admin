@@ -1,8 +1,8 @@
 /*
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2023-09-05 17:01:30
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2023-09-10 15:24:39
+ * @LastEditors: zy 319085634@qq.com
+ * @LastEditTime: 2023-09-11 01:14:13
  * @FilePath: \node\admin\server\index.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -58,7 +58,22 @@ app.use(expressJWT({
 	path: ['/login','/register']
 }))
 app.use(usersRouter)
-
+//错误处理
+app.use((error, req, res, next) => {
+    //error.name可以获取到token解析错误时返回的报错类型
+    if (error.name === 'UnauthorizedError') {
+        res.send({
+            status: 401,
+            message: '登录失效'
+        })
+    } else {
+        //console.log(error.message)
+        res.send({
+            status: 501,
+            messgae: '服务器错误'
+        })
+    }
+})
 
 app.listen(7777,()=>{
 	console.log('server is running in 7777')

@@ -32,7 +32,7 @@ const getInfo = async () => {
 		if (userInfo.data.status === 1) {
 			//将返回的解密用户信息存入pinia全局代理对象
 			piniaData.updateInfo(userInfo.data.data)
-	
+
 		} else {
 			showFailToast(userInfo.data.message)
 			changeRoute('login')
@@ -80,12 +80,13 @@ const onChange = (index) => {
 <template>
 	<p @click="piniaData.changebackgroundColor" class="header van-theme-dark">欢迎回来,{{ piniaData.datas.userInfo.username }}
 		<span v-show="piniaData.datas.config.backgroundColor === 'light'">☀️</span>
-		<span v-show="piniaData.datas.config.backgroundColor === 'dark'">🌙</span></p>
+		<span v-show="piniaData.datas.config.backgroundColor === 'dark'">🌙</span>
+	</p>
 
 	<van-sidebar class="sidebar" v-model="active" @change="onChange">
-		<van-sidebar-item title="下级管理" />
-		<van-sidebar-item title="个人信息" />
-		<van-sidebar-item title="订单管理" />
+		<van-sidebar-item class="sidebarItem" title="下级管理" />
+		<van-sidebar-item class="sidebarItem" title="个人信息" />
+		<van-sidebar-item class="sidebarItem" title="订单管理" />
 	</van-sidebar>
 
 	<component class="connect" :is="components[component]"></component>
@@ -104,13 +105,14 @@ const onChange = (index) => {
 	position: fixed;
 	left: 0;
 	top: 5vh;
-	width: 20vw;
+	width: 20vmin;
 	height: 45vh;
-	margin-bottom: 1vh;
+
 }
 
 .connect {
 	width: 80vw;
 	margin-top: 5vh;
 	margin-left: 20vw;
-}</style>
+}
+</style>

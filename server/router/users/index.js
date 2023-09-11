@@ -183,6 +183,7 @@ app.post('/changeUserInfo', async (req, res) => {
         //超级管理员修改
         else if (resInfo[0].id === 1) {
             const resChange = await mysqlp('update users set ? where id=?', [{
+                password: req.body.password,
                 email: req.body.email,
                 standing: req.body.standing,
                 //费率修改后他的余额就应该同比变化
@@ -201,7 +202,6 @@ app.post('/changeUserInfo', async (req, res) => {
         //判断是否下级
         else if (resInfo[0].id === +resChangeInfo[0].boss) {
             const resChange = await mysqlp('update users set ? where id=?', [{
-                email: req.body.email,
                 standing: req.body.standing,
                 //费率修改后他的余额就应该同比变化
                 money: Math.ceil(resChangeInfo[0].money * (req.body.standing / resChangeInfo[0].standing)),

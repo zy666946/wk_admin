@@ -1,3 +1,11 @@
+<!--
+ * @Author: zy 319085634@qq.com
+ * @Date: 2023-09-05 17:01:30
+ * @LastEditors: zy 319085634@qq.com
+ * @LastEditTime: 2023-09-12 02:59:58
+ * @FilePath: \node\admin\vue\src\components\OrderList.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <script setup>
 import { ref, computed } from 'vue'
 
@@ -9,7 +17,10 @@ const data = ref([])
 //模拟一万条数据
 setTimeout(() => {
     for (let i = 0; i < 10000; i++) {
-        data.value.push(i)
+        data.value.push({
+            number: i,
+            status: '已完成'
+        })
     }
 })
 
@@ -26,11 +37,23 @@ const dataShow = computed(() => searchValue.value ? searchDate(data.value, searc
 //初始化选中的分页
 const currentPage = ref(1)
 
-//初始化弹出层状态
-const popup = ref(false);
-const showPopup = () => {
-    popup.value = true;
+//初始化订单弹出层状态
+const orderPopup = ref(false);
+//初始化订单弹出层内容
+const orderPopupData = ref('')
+//打开弹出层事件
+const showPopup = (item) => {
+    orderPopupData.value = item
+    orderPopup.value = true;
 };
+
+
+//标签属性
+const tagStatus = (status) => {
+    if (status === '已完成') return 'success'
+    else if (status === '进行中') return 'primary'
+    else if (status === '异常') return 'danger'
+}
 
 </script>
 <template>
@@ -39,9 +62,20 @@ const showPopup = () => {
 
         <van-list class="orderList">
             <!--未做懒加载（未打算）-->
-            <van-cell v-for="item in dataShow" :key="item" :title="'订单编号：' + item" is-link value="查看" @click="showPopup" />
+
+
+            <van-cell v-for="item in dataShow" :key="item.number" is-link value="查看" @click="showPopup(item)">
+                <!-- 使用 title 插槽来自定义标题 -->
+                <template #title>
+                    <span class="custom-title">{{ '订单编号：' + item.number }}</span>
+                    <van-tag :type="tagStatus(item.status)">{{ item.status }}</van-tag>
+                </template>
+            </van-cell>
         </van-list>
-        <van-popup v-model:show="popup" :style="{ padding: '64px' }">内容</van-popup>
+        <van-popup style="width: 75vw;" v-model:show="orderPopup" :style="{ padding: '5vmin' }">
+            <van-field class="oderPopupItem" v-model="orderPopupData.number" readonly label="订单编号："></van-field>
+            <van-field class="oderPopupItem" v-model="orderPopupData.status" readonly label="订单状态："></van-field>
+        </van-popup>
         <van-pagination v-model="currentPage" :page-count="pageCount" :item-per-page="5" :total-items="data.length"
             :show-page-size="3" force-ellipsess />
 
@@ -61,9 +95,12 @@ const showPopup = () => {
     overflow: auto;
 }
 
-li {
-    height: 5vh;
-    list-style: none;
+.custom-title {
+    margin-right: 4px;
+    vertical-align: middle;
+}
 
+.oderPopupItem {
+    width: 100%;
 }
 </style>

@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { ref, computed } from 'vue'
 import { usePiniaData } from '../stores/counter.js'
-import { showSuccessToast, showFailToast } from 'vant'
+import { showLoadingToast, showSuccessToast, showFailToast } from 'vant'
 import { useRouter } from 'vue-router';
 import config from '../../config.json'
 //声明路由实例
@@ -37,6 +37,7 @@ const dataShow = computed(() => searchValue.value ? searchDate(items.value, sear
 const token = window.localStorage.getItem('token')
 //设置 common 通用默认请求头，之后的每一个请求都默认附带这个参数
 axios.defaults.headers.common['Authorization'] = token
+//获取用户列表
 const getUserList = async () => {
     try {
         const res = await axios({
@@ -55,30 +56,42 @@ const getUserList = async () => {
         console.log(error.message)
     }
 }
-
+//初始化
 token ? getUserList() : changeRoute('login')
 
 //初始化弹出层状态
 const popup = ref(false);
 //初始化弹出层内容
 const popupData = ref([])
+//计算账号状态
+const userStatus = computed(() => !popupData.status ? '正常' : '封禁')
+//弹出层
 const showPopup = (item) => {
     popup.value = true;
-    popupData.value = item
+    //深拷贝一下，防止没提交时页面缓存数据也被修改
+    popupData.value = JSON.parse(JSON.stringify(item))
 };
+//修改用户信息
+const changeUserInfo = async (id, username, password, email, standing, yqm) => {
+    showLoadingToast()
 
-const changeUserInfo = async(id,username,password,email,standing,yqm,status)=>{
     try {
         const res = await axios({
             method: 'post',
             url: config.serverUrl + ':' + config.serverPort + '/changeUserInfo',
-            data:{
-                id,username,password,email,standing,yqm,status
+            data: {
+                id, username, password, email, standing, yqm
             }
         })
-        console.log(res)
+        if (res.data.status === 1) {
+            getUserList()
+            showSuccessToast(res.data.message)
+            popup.value = false
+        }
+        else showFailToast('出错了')
     } catch (error) {
         console.log(error.message)
+        showFailToast('出错了')
     }
 }
 
@@ -96,16 +109,26 @@ const changeUserInfo = async(id,username,password,email,standing,yqm,status)=>{
         <van-pagination v-model="currentPage" :item-per-page="10" :total-items="pageCount" :show-page-size="3" />
         <!--通过 v-model:show 控制 弹出层 是否展示。-->
         <van-popup v-model:show="popup" :style="{ padding: '5vw' }">
-            <p> 用户ID: {{ popupData.id }}</p>
-            <p> 用户名：{{ popupData.username }}</p>
-            <p v-if="piniaData.datas.userInfo.id === 1"> 密码：{{ popupData.password }}</p>
-            <p>邮箱：{{ popupData.email }}</p>
-            <p>用户等级：{{ popupData.standing }}</p>
-            <p>用户余额：{{ popupData.money }}</p>
-            <p>邀请码: {{ popupData.yqm }}</p>
-            <p>账号状态：{{ !popupData.status ? '正常' : '封禁' }}</p>
+            <van-field v-model='popupData.id' readonly label="代理ID: " />
+            <van-field v-model='popupData.username' readonly label="用户名: " />
+            <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: " />
+            <van-field v-model='popupData.standing' type='number' label="费率：" placeholder="请输入费率" />
+            <van-field v-model='popupData.email' label-align="top" :readonly="!piniaData.datas.userInfo.id === 1"
+                type='text' label="邮箱：" placeholder="请输入邮箱" />
+            <van-field v-model='popupData.money' readonly label="代理余额：">
+                <template #button>
+                    <van-button size="small" type="primary">充值</van-button>
+                </template>
+            </van-field>
+            <van-field v-model="userStatus" readonly label="帐号状态：">
+                <template #button>
+                    <van-button v-show="!popupData.status" size="small" type="danger">封禁</van-button>
+                    <van-button v-show="popupData.status" size="success" type="danger">解封</van-button>
+                </template>
+            </van-field>
             <div class="submit">
-                <van-button size='small' plain type="primary" @click="changeUserInfo(popupData.id,popupData.username,popupData.password,popupData.email,popupData.standing,popupData.yqm,popupData.status)">提交</van-button>
+                <van-button size='small' plain type="primary"
+                    @click="changeUserInfo(popupData.id, popupData.username, popupData.password, popupData.email, popupData.standing, popupData.yqm)">提交</van-button>
             </div>
         </van-popup>
     </div>
@@ -125,7 +148,7 @@ const changeUserInfo = async(id,username,password,email,standing,yqm,status)=>{
     overflow: auto;
 }
 
-.submit{
+.submit {
     width: 75vw;
     margin-top: 3vh;
     display: flex;

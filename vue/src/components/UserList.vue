@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { ref, computed } from 'vue'
 import { usePiniaData } from '../stores/counter.js'
-import { showLoadingToast, showSuccessToast, showFailToast } from 'vant'
+import { showLoadingToast, showSuccessToast, showFailToast, showConfirmDialog } from 'vant'
 import { useRouter } from 'vue-router';
 import config from '../../config.json'
 //声明路由实例
@@ -98,7 +98,21 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
         showFailToast('出错了')
     }
 }
+//修改账户状态
+const changeUserStatus = async (status) => {
+    const message = status ? '封禁' : '解封'
+    try {
+        const res = await showConfirmDialog({
+            title: '提示',
+            message: `你确定要对此用户进行${message}吗？`,
+        })
 
+    } catch (error) {
+
+    }
+
+
+}
 </script>
 <template>
     <div>
@@ -110,6 +124,8 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
             <!--未做懒加载（未打算）-->
             <van-cell v-for="item in dataShow" :key="item.id" :title="`ID:${item.id} ${item.username}`" is-link value="查看"
                 @click="showPopup(item)" />
+            <van-loading v-show="!dataShow[0]">加载中...</van-loading>
+
         </van-list>
         <van-pagination v-model="currentPage" :item-per-page="10" :total-items="pageCount" :show-page-size="3" />
         <!--通过 v-model:show 控制 弹出层 是否展示。-->
@@ -127,8 +143,10 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
             </van-field>
             <van-field v-model="userStatus" readonly label="帐号状态：">
                 <template #button>
-                    <van-button v-show="!popupData.status" size="small" type="danger">封禁</van-button>
-                    <van-button v-show="popupData.status" size="success" type="danger">解封</van-button>
+                    <van-button @click="changeUserStatus(1)" v-show="!popupData.status" size="small"
+                        type="danger">封禁</van-button>
+                    <van-button @click="changeUserStatus(0)" v-show="popupData.status" size="success"
+                        type="danger">解封</van-button>
                 </template>
             </van-field>
             <div class="submit">

@@ -231,10 +231,30 @@ app.post('/changeUserInfo', async (req, res) => {
     }
 
 })
-//修改
+//修改邮箱
 app.post('/changeEmail', async (req, res) => {
     try {
-
+        const resInfo = await mysqlp('select * from users where username=?', req.user.username)
+        const resEmail = await mysqlp('select * from users where email=?', req.body.email)
+        if (resInfo[0].status) res.send({
+            status: -1,
+            message: '账号已被封禁'
+        })
+        else if (resEmail[0]) res.send({
+            status: -1,
+            message: '邮箱已被使用'
+        })
+        else {
+            const resChangeEmail = await mysqlp('update users set email=? where id=?', [req.body.email, resInfo[0].id])
+            if (resChangeEmail.affectedRows === 1) res.send({
+                status: 1,
+                message: '修改成功'
+            })
+            else res.send({
+                status: -1,
+                message: '数据库读写异常'
+            })
+        }
     } catch (error) {
         console.log(error)
         res.send({

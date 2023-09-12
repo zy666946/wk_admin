@@ -2,7 +2,7 @@
  * @Author: zy 319085634@qq.com
  * @Date: 2023-09-05 17:01:30
  * @LastEditors: zy 319085634@qq.com
- * @LastEditTime: 2023-09-12 23:23:41
+ * @LastEditTime: 2023-09-13 02:47:33
  * @FilePath: \node\admin\vue\src\components\OrderList.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -21,7 +21,7 @@ setTimeout(() => {
             number: i,
             userId: 1,
             phone: 123456,
-            status: '已完成',
+            status: '进行中',
             time: '2023-9-12'
         })
     }
@@ -72,6 +72,7 @@ const tagStatus = (status) => {
                     <van-tag :type="tagStatus(item.status)">{{ item.status }}</van-tag>
                 </template>
             </van-cell>
+            <van-loading v-show="!dataShow[0]">加载中...</van-loading>
         </van-list>
         <van-popup style="width: 80vmin;" v-model:show="orderPopup" :style="{ padding: '5vmin' }">
             <van-field class="oderPopupItem" v-model="orderPopupData.number" readonly label="订单编号："></van-field>

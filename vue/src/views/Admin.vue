@@ -17,6 +17,7 @@ const piniaData = usePiniaData()
 const token = window.localStorage.getItem('token')
 //设置 common 通用默认请求头，之后的每一个请求都默认附带这个参数
 axios.defaults.headers.common['Authorization'] = token
+//获取用户信息
 const getInfo = async () => {
 	try {
 		const userInfo = await axios({

@@ -127,13 +127,14 @@ const changeUserStatus = async (status) => {
             <van-loading v-show="!dataShow[0]">加载中...</van-loading>
 
         </van-list>
-        <van-pagination class="changePage" v-if="pageCount !== 1" v-model="currentPage" :item-per-page="10" :total-items="pageCount"
-            :show-page-size="3" />
+        <van-pagination class="changePage" v-if="pageCount !== 1" v-model="currentPage" :item-per-page="10"
+            :total-items="pageCount" :show-page-size="3" />
         <!--通过 v-model:show 控制 弹出层 是否展示。-->
         <van-popup v-model:show="popup" :style="{ padding: '5vmin', width: '80vmin' }">
             <van-field v-model='popupData.id' readonly label="代理ID: " />
             <van-field v-model='popupData.username' readonly label="用户名: " />
             <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: " />
+            <van-field v-model='popupData.boss' readonly label="上级ID: " />
             <van-field v-model='popupData.standing' type='number' label="费率：" placeholder="请输入费率" />
             <van-field v-model='popupData.email' label-align="top" :readonly="!piniaData.datas.userInfo.id === 1"
                 type='text' label="邮箱：" placeholder="请输入邮箱" />
@@ -180,6 +181,7 @@ const changeUserStatus = async (status) => {
     display: flex;
     justify-content: center;
 }
+
 .changePage {
     height: 10vh;
 }

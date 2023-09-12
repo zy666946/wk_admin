@@ -1,4 +1,4 @@
 {
-  "serverUrl": "http://127.0.0.",
+  "serverUrl": "http://127.0.0.1",
   "serverPort": 7777
 }

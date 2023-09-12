@@ -143,7 +143,7 @@ app.post('/getUserList', async (req, res) => {
             message: '账号已被封禁'
         })
         else {
-            const resUserList = await mysqlp('select id,username,email,money,status,standing,yqm from users where boss=?', resInfo[0].id)
+            const resUserList = await mysqlp('select id,username,email,money,status,boss,standing,yqm from users where boss=?', resInfo[0].id)
             res.send({
                 status: 1,
                 data: resUserList

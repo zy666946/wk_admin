@@ -86,6 +86,7 @@ const onChange = (index) => {
 	<van-sidebar class="sidebar" v-model="active" @change="onChange">
 		<van-sidebar-item class="sidebarItem" title="下级管理" />
 		<van-sidebar-item class="sidebarItem" title="个人信息" />
+
 		<van-sidebar-item class="sidebarItem" title="订单管理" />
 	</van-sidebar>
 
@@ -93,6 +94,7 @@ const onChange = (index) => {
 </template>
 <style scoped>
 .header {
+
 	z-index: 999;
 	text-align: center;
 	width: 100vw;
@@ -105,14 +107,14 @@ const onChange = (index) => {
 	position: fixed;
 	left: 0;
 	top: 5vh;
-	width: 20vmin;
+	width: 25vmin;
 	height: 45vh;
 
 }
 
 .connect {
-	width: 80vw;
+	width: 75vw;
 	margin-top: 5vh;
-	margin-left: 20vw;
+	margin-left: 20vmin;
 }
 </style>

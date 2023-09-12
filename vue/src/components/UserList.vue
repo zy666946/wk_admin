@@ -26,11 +26,12 @@ const items = ref([])
 const pageCount = computed(() => Math.ceil(items.value.length / 20))
 //初始化选中的分页
 const currentPage = ref(1)
-//计算当前页数据
+//计算搜索数据
 const searchDate = (list, search) => {
-    const res = list.find(item => new String(item.id).indexOf(search) >= 0 || item.username.indexOf(search) >= 0)
+    const res = list.find(item => new String(item.id).indexOf(search) != -1 || new String(item.username).indexOf(search) != -1 || new String(item.email).indexOf(search) != -1)
     return res ? [res] : []
 }
+//计算当前页数据
 const dataShow = computed(() => searchValue.value ? searchDate(items.value, searchValue.value) : items.value.slice(currentPage.value * 20 - 20, currentPage.value * 20))
 
 //初始化axios请求配置
@@ -103,12 +104,12 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
             placeholder="查找用户" />
         <van-list class="userList">
             <!--未做懒加载（未打算）-->
-            <van-cell v-for="item in dataShow" :key="item.id" :title="`ID:${item.id} ${item.username}`" is-link value="编辑"
+            <van-cell v-for="item in dataShow" :key="item.id" :title="`ID:${item.id} ${item.username}`" is-link value="查看"
                 @click="showPopup(item)" />
         </van-list>
         <van-pagination v-model="currentPage" :item-per-page="10" :total-items="pageCount" :show-page-size="3" />
         <!--通过 v-model:show 控制 弹出层 是否展示。-->
-        <van-popup v-model:show="popup" :style="{ padding: '5vw' }">
+        <van-popup v-model:show="popup" :style="{ padding: '5vmin', width: '80vmin' }">
             <van-field v-model='popupData.id' readonly label="代理ID: " />
             <van-field v-model='popupData.username' readonly label="用户名: " />
             <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: " />
@@ -136,6 +137,7 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
 
 <style scoped>
 .userListSearch {
+    width: calc(100vw - 20vmin);
     height: 10vh;
     position: fixed;
     top: 5vh;
@@ -146,10 +148,11 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
     margin-top: 15vh;
     height: 75vh;
     overflow: auto;
+    width: calc(100vw - 20vmin);
 }
 
 .submit {
-    width: 75vw;
+    width: 100%;
     margin-top: 3vh;
     display: flex;
     justify-content: center;

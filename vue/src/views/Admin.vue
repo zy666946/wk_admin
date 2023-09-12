@@ -39,7 +39,9 @@ const getInfo = async () => {
 			changeRoute('login')
 		}
 	} catch (error) {
-		console.log(error)
+		showFailToast(error.message)
+		changeRoute('login')
+		console.log(error.message)
 
 	}
 }

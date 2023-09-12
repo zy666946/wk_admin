@@ -134,7 +134,7 @@ const changeUserStatus = async (status) => {
             <van-field v-model='popupData.id' readonly label="代理ID: " />
             <van-field v-model='popupData.username' readonly label="用户名: " />
             <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: " />
-            <van-field v-model='popupData.boss' readonly label="上级ID: " />
+            <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.boss' readonly label="上级ID: " />
             <van-field v-model='popupData.standing' type='number' label="费率：" placeholder="请输入费率" />
             <van-field v-model='popupData.email' label-align="top" :readonly="!piniaData.datas.userInfo.id === 1"
                 type='text' label="邮箱：" placeholder="请输入邮箱" />

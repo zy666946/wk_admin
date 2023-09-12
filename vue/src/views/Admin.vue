@@ -118,5 +118,6 @@ const onChange = (index) => {
 	width: 75vw;
 	margin-top: 5vh;
 	margin-left: 25vmin;
+	height: 70vh;
 }
 </style>

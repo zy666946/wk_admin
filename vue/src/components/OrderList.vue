@@ -2,7 +2,7 @@
  * @Author: zy 319085634@qq.com
  * @Date: 2023-09-05 17:01:30
  * @LastEditors: zy 319085634@qq.com
- * @LastEditTime: 2023-09-13 02:47:33
+ * @LastEditTime: 2023-09-13 03:38:24
  * @FilePath: \node\admin\vue\src\components\OrderList.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -75,14 +75,14 @@ const tagStatus = (status) => {
             <van-loading v-show="!dataShow[0]">加载中...</van-loading>
         </van-list>
         <van-popup style="width: 80vmin;" v-model:show="orderPopup" :style="{ padding: '5vmin' }">
-            <van-field class="oderPopupItem" v-model="orderPopupData.number" readonly label="订单编号："></van-field>
-            <van-field class="oderPopupItem" v-model="orderPopupData.userId" readonly label="下单ID: "></van-field>
-            <van-field class="oderPopupItem" v-model="orderPopupData.phone" readonly label="下单账号："></van-field>
-            <van-field class="oderPopupItem" v-model="orderPopupData.status" readonly label="订单状态："></van-field>
-            <van-field class="oderPopupItem" v-model="orderPopupData.time" readonly label="下单日期："></van-field>
+            <van-field class="orderPopupItem" v-model="orderPopupData.number" readonly label="订单编号："></van-field>
+            <van-field class="orderPopupItem" v-model="orderPopupData.userId" readonly label="下单ID: "></van-field>
+            <van-field class="orderPopupItem" v-model="orderPopupData.phone" readonly label="下单账号："></van-field>
+            <van-field class="orderPopupItem" v-model="orderPopupData.status" readonly label="订单状态："></van-field>
+            <van-field class="orderPopupItem" v-model="orderPopupData.time" readonly label="下单日期："></van-field>
         </van-popup>
-        <van-pagination v-model="currentPage" :page-count="pageCount" :item-per-page="5" :total-items="data.length"
-            :show-page-size="3" force-ellipsess />
+        <van-pagination v-if="pageCount !== 1" class="changePage" v-model="currentPage" :page-count="pageCount"
+            :item-per-page="5" :total-items="data.length" :show-page-size="3" force-ellipsess />
 
     </div>
 </template>
@@ -107,7 +107,11 @@ const tagStatus = (status) => {
     vertical-align: middle;
 }
 
-.oderPopupItem {
+.orderPopupItem {
     width: 100%;
+}
+
+.changePage {
+    height: 10vh;
 }
 </style>

@@ -127,7 +127,8 @@ const changeUserStatus = async (status) => {
             <van-loading v-show="!dataShow[0]">加载中...</van-loading>
 
         </van-list>
-        <van-pagination v-model="currentPage" :item-per-page="10" :total-items="pageCount" :show-page-size="3" />
+        <van-pagination class="changePage" v-if="pageCount !== 1" v-model="currentPage" :item-per-page="10" :total-items="pageCount"
+            :show-page-size="3" />
         <!--通过 v-model:show 控制 弹出层 是否展示。-->
         <van-popup v-model:show="popup" :style="{ padding: '5vmin', width: '80vmin' }">
             <van-field v-model='popupData.id' readonly label="代理ID: " />
@@ -178,5 +179,8 @@ const changeUserStatus = async (status) => {
     margin-top: 3vh;
     display: flex;
     justify-content: center;
+}
+.changePage {
+    height: 10vh;
 }
 </style>

@@ -231,5 +231,17 @@ app.post('/changeUserInfo', async (req, res) => {
     }
 
 })
+//修改
+app.post('/changeEmail', async (req, res) => {
+    try {
+
+    } catch (error) {
+        console.log(error)
+        res.send({
+            status: -1,
+            message: '服务器错误'
+        })
+    }
+})
 
 export default app

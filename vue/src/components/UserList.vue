@@ -74,7 +74,10 @@ const showPopup = (item) => {
 };
 //修改用户信息
 const changeUserInfo = async (id, username, password, email, standing, yqm) => {
-    showLoadingToast()
+    showLoadingToast({
+        message: '加载中...',
+        forbidClick: true,
+    })
 
     try {
         const res = await axios({
@@ -102,6 +105,7 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
 
         <van-search class="userListSearch" show-action @search="onSearch" @cancel="" v-model="searchValue"
             placeholder="查找用户" />
+
         <van-list class="userList">
             <!--未做懒加载（未打算）-->
             <van-cell v-for="item in dataShow" :key="item.id" :title="`ID:${item.id} ${item.username}`" is-link value="查看"
@@ -137,7 +141,7 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
 
 <style scoped>
 .userListSearch {
-    width: calc(100vw - 20vmin);
+    width: calc(100vw - 25vmin);
     height: 10vh;
     position: fixed;
     top: 5vh;
@@ -146,9 +150,9 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
 
 .userList {
     margin-top: 15vh;
-    height: 75vh;
+    max-height: 75vh;
     overflow: auto;
-    width: calc(100vw - 20vmin);
+    width: calc(100vw - 25vmin);
 }
 
 .submit {

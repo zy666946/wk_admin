@@ -94,7 +94,7 @@ const onChange = (index) => {
 </template>
 <style scoped>
 .header {
-
+	font-size: 1.5rem;
 	z-index: 999;
 	text-align: center;
 	width: 100vw;
@@ -115,6 +115,6 @@ const onChange = (index) => {
 .connect {
 	width: 75vw;
 	margin-top: 5vh;
-	margin-left: 20vmin;
+	margin-left: 25vmin;
 }
 </style>

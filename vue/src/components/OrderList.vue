@@ -2,7 +2,7 @@
  * @Author: zy 319085634@qq.com
  * @Date: 2023-09-05 17:01:30
  * @LastEditors: zy 319085634@qq.com
- * @LastEditTime: 2023-09-12 13:17:45
+ * @LastEditTime: 2023-09-12 23:23:41
  * @FilePath: \node\admin\vue\src\components\OrderList.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -65,8 +65,6 @@ const tagStatus = (status) => {
 
         <van-list class="orderList">
             <!--未做懒加载（未打算）-->
-
-
             <van-cell v-for="item in dataShow" :key="item.number" is-link value="查看" @click="showPopup(item)">
                 <!-- 使用 title 插槽来自定义标题 -->
                 <template #title>
@@ -89,7 +87,7 @@ const tagStatus = (status) => {
 </template>
 <style scoped>
 .orderListSearch {
-    width: calc(100vw - 20vmin);
+    width: calc(100vw - 25vmin);
     height: 10vh;
     position: fixed;
     top: 5vh;
@@ -100,7 +98,7 @@ const tagStatus = (status) => {
     margin-top: 15vh;
     height: 75vh;
     overflow: auto;
-    width: calc(100vw - 20vmin);
+    width: calc(100vw - 25vmin);
 }
 
 .custom-title {

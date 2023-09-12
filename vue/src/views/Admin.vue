@@ -113,6 +113,7 @@ const onChange = (index) => {
 
 }
 
+
 .connect {
 	width: 75vw;
 	margin-top: 5vh;

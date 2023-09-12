@@ -92,7 +92,7 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
             showSuccessToast(res.data.message)
             popup.value = false
         }
-        else showFailToast('出错了')
+        else showFailToast(res.data.message)
     } catch (error) {
         console.log(error.message)
         showFailToast('出错了')
@@ -122,8 +122,8 @@ const changeUserStatus = async (status) => {
 
         <van-list class="userList">
             <!--未做懒加载（未打算）-->
-            <van-cell v-for="item in dataShow" :key="item.id" :title="`ID:${item.id} ${item.username}`" is-link value="查看"
-                @click="showPopup(item)" />
+            <van-cell v-for="item in dataShow" :key="item.id" :title="`ID:${item.id}--${item.username}--${item.standing}`"
+                is-link value="查看" @click="showPopup(item)" />
             <van-loading v-show="!dataShow[0]">加载中...</van-loading>
 
         </van-list>
@@ -133,11 +133,12 @@ const changeUserStatus = async (status) => {
         <van-popup v-model:show="popup" :style="{ padding: '5vmin', width: '80vmin' }">
             <van-field v-model='popupData.id' readonly label="代理ID: " />
             <van-field v-model='popupData.username' readonly label="用户名: " />
-            <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: " />
+            <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: "
+                placeholder="请输入密码" />
             <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.boss' readonly label="上级ID: " />
             <van-field v-model='popupData.standing' type='number' label="费率：" placeholder="请输入费率" />
-            <van-field v-model='popupData.email' label-align="top" :readonly="!piniaData.datas.userInfo.id === 1"
-                type='text' label="邮箱：" placeholder="请输入邮箱" />
+            <van-field v-model='popupData.email' label-align="top" :readonly="piniaData.datas.userInfo.id !== 1" type='text'
+                label="邮箱：" placeholder="请输入邮箱" />
             <van-field v-model='popupData.money' readonly label="代理余额：">
                 <template #button>
                     <van-button size="small" type="primary">充值</van-button>

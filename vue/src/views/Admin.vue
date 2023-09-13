@@ -35,7 +35,11 @@ const getInfo = async () => {
 			piniaData.updateInfo(userInfo.data.data)
 
 		} else {
+			//登录失败
 			showFailToast(userInfo.data.message)
+			//删除token
+			window.localStorage.removeItem('token')
+			//跳转登录界面
 			changeRoute('login')
 		}
 	} catch (error) {

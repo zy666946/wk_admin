@@ -166,8 +166,16 @@ app.post('/changeUserInfo', async (req, res) => {
         const resChangeInfo = await mysqlp('select * from users where id=?', req.body.id)
         //查询邀请码是否已存在（查询除修改对象外）
         const resYqm = await mysqlp('select * from users where id!=? and yqm=?', [req.body.id, req.body.yqm])
+        if (resInfo[0].status) res.send({
+            status: -1,
+            message: '你已被封禁'
+        })
+        else if (isNaN(parseFloat(req.body.standing))) res.send({
+            status: -1,
+            message: '费率错误'
+        })
         //判断费率
-        if (+req.body.standing < +resInfo[0].standing) res.send({
+        else if (+req.body.standing < +resInfo[0].standing) res.send({
             status: -1,
             message: '费率不能低于自己'
         })
@@ -262,6 +270,27 @@ app.post('/changeEmail', async (req, res) => {
             message: '服务器错误'
         })
     }
+})
+//用户封禁
+app.post('/changeStatus', async (req, res) => {
+    //获取用户信息
+    const resInfo = await mysqlp('select * from users where username=?', req.user.username)
+    //获取操作对象信息
+    const resChangeInfo = await mysqlp('select * from users where id=?', req.body.id)
+    if (+resInfo[0].id === +resChangeInfo[0].boss) {
+        const resChangeEmail = await mysqlp('update users set status=? where id=?', [req.body.status, resChangeInfo[0].id])
+        if (resChangeEmail.affectedRows === 1) res.send({
+            status: 1,
+            message: '操作成功'
+        })
+        else res.send({
+            status: -1,
+            message: '数据库读写异常'
+        })
+    } else res.send({
+        status: -1,
+        message: '他不是你的代理'
+    })
 })
 
 export default app

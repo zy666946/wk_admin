@@ -19,7 +19,10 @@ const onSearch = (value) => {
     console.log(value)
 }
 
+
 //分页
+//加载中状态
+const loadingStaus = ref(true)
 //初始化数据
 const items = ref([])
 //计算总页数
@@ -47,6 +50,7 @@ const getUserList = async () => {
         })
         if (res.data.status === 1) {
             items.value = res.data.data
+            loadingStaus.value = false
             //console.log(items.value)
         } else {
             showFailToast(res.data.message)
@@ -99,13 +103,31 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
     }
 }
 //修改账户状态
-const changeUserStatus = async (status) => {
+const changeUserStatus = async (id, status) => {
     const message = status ? '封禁' : '解封'
     try {
         const res = await showConfirmDialog({
             title: '提示',
             message: `你确定要对此用户进行${message}吗？`,
         })
+        if (res) {
+            const resChangeStatus = await axios({
+                method: 'post',
+                url: config.serverUrl + ':' + config.serverPort + '/changeStatus',
+                data: {
+                    id,
+                    status
+                }
+            })
+            if (resChangeStatus.data.status === 1) {
+                //重新获取用户数据
+                getUserList()
+                //关闭弹窗
+                popup.value = false
+                showSuccessToast('操作成功')
+            }
+            else showFailToast(resChangeStatus.data.message)
+        }
 
     } catch (error) {
 
@@ -124,7 +146,7 @@ const changeUserStatus = async (status) => {
             <!--未做懒加载（未打算）-->
             <van-cell v-for="item in dataShow" :key="item.id" :title="`ID:${item.id}--${item.username}--${item.standing}`"
                 is-link value="查看" @click="showPopup(item)" />
-            <van-loading v-show="!dataShow[0]">加载中...</van-loading>
+            <van-loading v-show="loadingStaus">加载中...</van-loading>
 
         </van-list>
         <van-pagination class="changePage" v-if="pageCount !== 1" v-model="currentPage" :item-per-page="10"
@@ -146,10 +168,10 @@ const changeUserStatus = async (status) => {
             </van-field>
             <van-field v-model="userStatus" readonly label="帐号状态：">
                 <template #button>
-                    <van-button @click="changeUserStatus(1)" v-show="!popupData.status" size="small"
+                    <van-button @click="changeUserStatus(popupData.id, 1)" v-if="!popupData.status" size="small"
                         type="danger">封禁</van-button>
-                    <van-button @click="changeUserStatus(0)" v-show="popupData.status" size="success"
-                        type="danger">解封</van-button>
+                    <van-button @click="changeUserStatus(popupData.id, 0)" v-if="popupData.status" size="small"
+                        type="success">解封</van-button>
                 </template>
             </van-field>
             <div class="submit">

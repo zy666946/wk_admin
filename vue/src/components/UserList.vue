@@ -183,12 +183,13 @@ const recharge = async (id, money) => {
         if (resCharge.data.status === 1) {
             //初始化输入
             rechargeMoney.value = ''
+            //更新下级数据
+            popupData.value.money = resCharge.data.newMoney
+            //更新自己数据
+            piniaData.updateMoney(resCharge.data.newMoney2)
+            items.value[0].money = resCharge.data.newMoney2
             popupRechargeStatus.value = false
             showSuccessToast(resCharge.data.message)
-            //重新获取用户数据
-            getUserList()
-            //关闭弹窗
-            popup.value = false
         } else showFailToast(resCharge.data.message)
     } catch (error) {
         console.log(error)

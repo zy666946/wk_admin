@@ -324,17 +324,19 @@ app.post('/recharge', async (req, res) => {
         else if (resInfo[0].id === +resChangeInfo[0].boss || resInfo[0].id === 1) {
             const kouMoney = new Number(+resInfo[0].standing / +resChangeInfo[0].standing * +req.body.money).toFixed(2)
             const newMoney = new Number(+req.body.money + +resChangeInfo[0].money).toFixed(2)
-            const newMoney2 = resInfo[0].money - kouMoney
+            const newMoney2 = new Number(+resInfo[0].money - kouMoney).toFixed(2)
 
             if (resInfo[0].money < kouMoney) res.send({
                 status: -1,
                 message: '余额不足'
             })
             else {
-                const resRecharge = await mysqlp('update users set money=? where id=?', [newMoney, req.body.id])
                 const resKoumoney = await mysqlp('update users set money=? where id=?', [newMoney2, resInfo[0].id])
+                const resRecharge = await mysqlp('update users set money=? where id=?', [newMoney, req.body.id])
                 if (resRecharge.affectedRows === 1 && resKoumoney.affectedRows === 1) res.send({
                     status: 1,
+                    newMoney,
+                    newMoney2,
                     message: '充值成功'
                 })
                 else res.send({

@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2023-09-07 02:11:23
  * @LastEditors: zy 319085634@qq.com
- * @LastEditTime: 2023-09-13 01:41:58
+ * @LastEditTime: 2023-09-13 23:12:13
  * @FilePath: \node\admin\vue\src\components\Info.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -96,7 +96,7 @@ const loginBack = () => {
             <van-cell title="下级默认等级" :value="piniaData.datas.userInfo.yqprice" />
         </van-cell-group>
         <van-button class="loginBack" type="danger" @click="loginBack()">退出登录</van-button>
-        <van-popup style="width: 80vmin;" v-model:show="popupEmail" :style="{ padding: '5vmin' }">
+        <van-popup style="width: 80vmin;border-radius: 5px;" v-model:show="popupEmail" :style="{ padding: '5vmin' }">
             <p class="popupH1">邮箱修改</p>
             <van-field v-model="newEmail" placeholder="请输入新的邮箱">
                 <template #button>

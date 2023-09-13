@@ -15,8 +15,8 @@ const piniaData = usePiniaData()
 //搜索内容
 const searchValue = ref('')
 //搜索回车键监听
-const onSearch = (value) => {
-    console.log(value)
+const onSearch = () => {
+    console.log(searchValue.value)
 }
 
 
@@ -36,6 +36,11 @@ const searchDate = (list, search) => {
 }
 //计算当前页数据
 const dataShow = computed(() => searchValue.value ? searchDate(items.value, searchValue.value) : items.value.slice(currentPage.value * 20 - 20, currentPage.value * 20))
+
+
+
+
+
 
 //初始化axios请求配置
 const token = window.localStorage.getItem('token')
@@ -64,6 +69,12 @@ const getUserList = async () => {
 //初始化
 token ? getUserList() : changeRoute('login')
 
+
+
+
+
+
+
 //初始化弹出层状态
 const popup = ref(false);
 //初始化弹出层内容
@@ -82,7 +93,6 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
         message: '加载中...',
         forbidClick: true,
     })
-
     try {
         const res = await axios({
             method: 'post',
@@ -99,11 +109,12 @@ const changeUserInfo = async (id, username, password, email, standing, yqm) => {
         else showFailToast(res.data.message)
     } catch (error) {
         console.log(error.message)
-        showFailToast('出错了')
+        showFailToast(error.message)
     }
 }
 //修改账户状态
 const changeUserStatus = async (id, status) => {
+
     const message = status ? '封禁' : '解封'
     try {
         const res = await showConfirmDialog({
@@ -111,6 +122,10 @@ const changeUserStatus = async (id, status) => {
             message: `你确定要对此用户进行${message}吗？`,
         })
         if (res) {
+            showLoadingToast({
+                message: '加载中...',
+                forbidClick: true,
+            })
             const resChangeStatus = await axios({
                 method: 'post',
                 url: config.serverUrl + ':' + config.serverPort + '/changeStatus',
@@ -135,6 +150,51 @@ const changeUserStatus = async (id, status) => {
 
 
 }
+
+
+
+
+
+
+//初始化充值框状态
+const popupRechargeStatus = ref(false)
+//充值金额
+const rechargeMoney = ref('')
+//充值弹窗
+const showRechargePopup = () => {
+    popupRechargeStatus.value = true
+}
+//充值请求
+const recharge = async (id, money) => {
+    showLoadingToast({
+        message: '加载中...',
+        forbidClick: true,
+    })
+    try {
+        const resCharge = await axios({
+            method: 'post',
+            url: config.serverUrl + ':' + config.serverPort + '/recharge',
+            data: {
+                id,
+                money
+            }
+        })
+        console.log(resCharge)
+        if (resCharge.data.status === 1) {
+            //初始化输入
+            rechargeMoney.value = ''
+            popupRechargeStatus.value = false
+            showSuccessToast(resCharge.data.message)
+            //重新获取用户数据
+            getUserList()
+            //关闭弹窗
+            popup.value = false
+        } else showFailToast(resCharge.data.message)
+    } catch (error) {
+        console.log(error)
+        showFailToast('出错啦')
+    }
+}
 </script>
 <template>
     <div>
@@ -152,7 +212,7 @@ const changeUserStatus = async (id, status) => {
         <van-pagination class="changePage" v-if="pageCount !== 1" v-model="currentPage" :item-per-page="10"
             :total-items="pageCount" :show-page-size="3" />
         <!--通过 v-model:show 控制 弹出层 是否展示。-->
-        <van-popup v-model:show="popup" :style="{ padding: '5vmin', width: '80vmin' }">
+        <van-popup v-model:show="popup" style="padding: 5vmin; width: 80vmin;border-radius: 5px">
             <van-field v-model='popupData.id' readonly label="代理ID: " />
             <van-field v-model='popupData.username' readonly label="用户名: " />
             <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: "
@@ -163,7 +223,7 @@ const changeUserStatus = async (id, status) => {
                 label="邮箱：" placeholder="请输入邮箱" />
             <van-field v-model='popupData.money' readonly label="代理余额：">
                 <template #button>
-                    <van-button size="small" type="primary">充值</van-button>
+                    <van-button @click="showRechargePopup" size="small" type="primary">充值</van-button>
                 </template>
             </van-field>
             <van-field v-model="userStatus" readonly label="帐号状态：">
@@ -174,10 +234,21 @@ const changeUserStatus = async (id, status) => {
                         type="success">解封</van-button>
                 </template>
             </van-field>
+
             <div class="submit">
                 <van-button size='small' plain type="primary"
                     @click="changeUserInfo(popupData.id, popupData.username, popupData.password, popupData.email, popupData.standing, popupData.yqm)">提交</van-button>
             </div>
+        </van-popup>
+        <!--充值弹窗-->
+        <van-popup style="width: 80vmin;border-radius: 5px;" v-model:show="popupRechargeStatus"
+            :style="{ padding: '5vmin' }">
+            <p class="popupH1">代理充值</p>
+            <van-field v-model="rechargeMoney" type="number" placeholder="请输入充值金额">
+                <template #button>
+                    <van-button @click="recharge(popupData.id, rechargeMoney)" size="small" type="primary">确定</van-button>
+                </template>
+            </van-field>
         </van-popup>
     </div>
 </template>

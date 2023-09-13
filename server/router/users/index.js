@@ -25,40 +25,6 @@ const sqldb = mysql.createPool({
 })
 //express实例
 const app = express()
-//登录路由
-app.post('/login', async (req, res) => {
-    try {
-        const resdb = await mysqlp('select * from users where username=? and password=?', [req.body.userName, req.body.passWord])
-        //如果数据匹配
-        if (resdb[0]) {
-            //判断账号状态
-            if (resdb[0].status) {
-                res.send({
-                    status: -1,
-                    message: '账号被封禁'
-                })
-            } else {
-                res.send({
-                    status: 1,
-                    //调用jwt.sign加密用户信息
-                    token: jwt.sign({ username: req.body.userName }, config.jwtKey, { expiresIn: config.expiresInTime })
-                })
-            }
-        } else {
-            res.send({
-                status: -1,
-                message: '密码错误'
-            })
-        }
-    } catch (error) {
-        console.log(error)
-        res.send({
-            status: -1,
-            message: '服务器错误'
-        })
-    }
-
-})
 //注册路由
 app.post('/register', async (req, res) => {
     try {
@@ -104,6 +70,41 @@ app.post('/register', async (req, res) => {
             message: '服务器错误'
         })
     }
+})
+
+//登录路由
+app.post('/login', async (req, res) => {
+    try {
+        const resdb = await mysqlp('select * from users where username=? and password=?', [req.body.userName, req.body.passWord])
+        //如果数据匹配
+        if (resdb[0]) {
+            //判断账号状态
+            if (resdb[0].status) {
+                res.send({
+                    status: -1,
+                    message: '账号被封禁'
+                })
+            } else {
+                res.send({
+                    status: 1,
+                    //调用jwt.sign加密用户信息
+                    token: jwt.sign({ username: req.body.userName }, config.jwtKey, { expiresIn: config.expiresInTime })
+                })
+            }
+        } else {
+            res.send({
+                status: -1,
+                message: '密码错误'
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        res.send({
+            status: -1,
+            message: '服务器错误'
+        })
+    }
+
 })
 //个人信息获取
 app.post('/getInfo', async (req, res) => {
@@ -273,24 +274,88 @@ app.post('/changeEmail', async (req, res) => {
 })
 //用户封禁
 app.post('/changeStatus', async (req, res) => {
-    //获取用户信息
-    const resInfo = await mysqlp('select * from users where username=?', req.user.username)
-    //获取操作对象信息
-    const resChangeInfo = await mysqlp('select * from users where id=?', req.body.id)
-    if (+resInfo[0].id === +resChangeInfo[0].boss) {
-        const resChangeEmail = await mysqlp('update users set status=? where id=?', [req.body.status, resChangeInfo[0].id])
-        if (resChangeEmail.affectedRows === 1) res.send({
-            status: 1,
-            message: '操作成功'
-        })
-        else res.send({
+    try {
+        //获取用户信息
+        const resInfo = await mysqlp('select * from users where username=?', req.user.username)
+        //获取操作对象信息
+        const resChangeInfo = await mysqlp('select * from users where id=?', req.body.id)
+        if (resInfo[0].status) res.send({
             status: -1,
-            message: '数据库读写异常'
+            message: '账号已被封禁'
         })
-    } else res.send({
-        status: -1,
-        message: '他不是你的代理'
-    })
+        else if (+resInfo[0].id === +resChangeInfo[0].boss || resInfo[0].id === 1) {
+            const resChangeEmail = await mysqlp('update users set status=? where id=?', [req.body.status, resChangeInfo[0].id])
+            if (resChangeEmail.affectedRows === 1) res.send({
+                status: 1,
+                message: '操作成功'
+            })
+            else res.send({
+                status: -1,
+                message: '数据库读写异常'
+            })
+        } else res.send({
+            status: -1,
+            message: '他不是你的代理'
+        })
+    } catch (error) {
+        console.log(error)
+        res.send({
+            status: -1,
+            message: '服务器错误'
+        })
+    }
+
+})
+//用户充值
+app.post('/recharge', async (req, res) => {
+    try {
+        //获取用户信息
+        const resInfo = await mysqlp('select * from users where username=?', req.user.username)
+        //获取操作对象信息
+        const resChangeInfo = await mysqlp('select * from users where id=?', req.body.id)
+        if (resInfo[0].status) res.send({
+            status: -1,
+            message: '你已被封禁'
+        })
+        else if (isNaN(parseFloat(req.body.money))) res.send({
+            status: -1,
+            message: '参数违法'
+        })
+        else if (resInfo[0].id === +resChangeInfo[0].boss || resInfo[0].id === 1) {
+            const kouMoney = new Number(+resInfo[0].standing / +resChangeInfo[0].standing * +req.body.money).toFixed(2)
+            const newMoney = new Number(+req.body.money + +resChangeInfo[0].money).toFixed(2)
+            const newMoney2 = resInfo[0].money - kouMoney
+
+            if (resInfo[0].money < kouMoney) res.send({
+                status: -1,
+                message: '余额不足'
+            })
+            else {
+                const resRecharge = await mysqlp('update users set money=? where id=?', [newMoney, req.body.id])
+                const resKoumoney = await mysqlp('update users set money=? where id=?', [newMoney2, resInfo[0].id])
+                if (resRecharge.affectedRows === 1 && resKoumoney.affectedRows === 1) res.send({
+                    status: 1,
+                    message: '充值成功'
+                })
+                else res.send({
+                    status: -1,
+                    message: '数据库读写异常'
+                })
+            }
+        }
+        else {
+            res.send({
+                status: -1,
+                message: '他不是你的代理'
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        res.send({
+            status: -1,
+            message: '服务器错误'
+        })
+    }
 })
 
 export default app

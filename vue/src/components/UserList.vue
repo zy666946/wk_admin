@@ -166,11 +166,14 @@ const showRechargePopup = () => {
 }
 //充值请求
 const recharge = async (id, money) => {
-    showLoadingToast({
-        message: '加载中...',
-        forbidClick: true,
-    })
+    if (money === '') return showFailToast('请输入充值金额')
+
     try {
+        const res = await showConfirmDialog({
+            title: '提示',
+            message: `你将消耗${new Number(piniaData.datas.userInfo.standing / popupData.value.standing * money).toFixed(2)}余额`,
+        })
+
         const resCharge = await axios({
             method: 'post',
             url: config.serverUrl + ':' + config.serverPort + '/recharge',
@@ -179,7 +182,7 @@ const recharge = async (id, money) => {
                 money
             }
         })
-        console.log(resCharge)
+
         if (resCharge.data.status === 1) {
             //初始化输入
             rechargeMoney.value = ''
@@ -192,8 +195,7 @@ const recharge = async (id, money) => {
             showSuccessToast(resCharge.data.message)
         } else showFailToast(resCharge.data.message)
     } catch (error) {
-        console.log(error)
-        showFailToast('出错啦')
+
     }
 }
 </script>
@@ -215,16 +217,18 @@ const recharge = async (id, money) => {
         <!--通过 v-model:show 控制 弹出层 是否展示。-->
         <van-popup v-model:show="popup" style="padding: 5vmin; width: 80vmin;border-radius: 5px">
             <van-field v-model='popupData.id' readonly label="代理ID: " />
-            <van-field v-model='popupData.username' readonly label="用户名: " />
+            <van-field v-model='popupData.username' :readonly="piniaData.datas.userInfo.id !== 1" label="用户名: " />
             <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.password' label="密码: "
                 placeholder="请输入密码" />
+            <van-field v-model='popupData.email' :readonly="piniaData.datas.userInfo.id !== 1" type='text' label="邮箱："
+                placeholder="请输入邮箱" />
             <van-field v-if="piniaData.datas.userInfo.id === 1" v-model='popupData.boss' readonly label="上级ID: " />
-            <van-field v-model='popupData.standing' type='number' label="费率：" placeholder="请输入费率" />
-            <van-field v-model='popupData.email' label-align="top" :readonly="piniaData.datas.userInfo.id !== 1" type='text'
-                label="邮箱：" placeholder="请输入邮箱" />
+            <van-field :readonly="piniaData.datas.userInfo.id !== 1" v-model='popupData.standing' type='number' label="费率："
+                placeholder="请输入费率" />
+
             <van-field v-model='popupData.money' readonly label="代理余额：">
                 <template #button>
-                    <van-button @click="showRechargePopup" size="small" type="primary">充值</van-button>
+                    <van-button @click="showRechargePopup" size="small" type="success">充值</van-button>
                 </template>
             </van-field>
             <van-field v-model="userStatus" readonly label="帐号状态：">
@@ -235,10 +239,11 @@ const recharge = async (id, money) => {
                         type="success">解封</van-button>
                 </template>
             </van-field>
-
+            <van-field v-model='popupData.yqm' readonly label="邀请码: " />
             <div class="submit">
-                <van-button size='small' plain type="primary"
+                <van-button v-if="piniaData.datas.userInfo.id === 1" size='small' plain type="primary"
                     @click="changeUserInfo(popupData.id, popupData.username, popupData.password, popupData.email, popupData.standing, popupData.yqm)">提交</van-button>
+                <van-button size='small' plain @click="popup = false" type="primary">确定</van-button>
             </div>
         </van-popup>
         <!--充值弹窗-->
@@ -274,7 +279,7 @@ const recharge = async (id, money) => {
     width: 100%;
     margin-top: 3vh;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
 }
 
 .changePage {

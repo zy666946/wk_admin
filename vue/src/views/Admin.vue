@@ -6,10 +6,13 @@ import axios from 'axios'
 import { usePiniaData } from '../stores/counter.js'
 import { ref } from 'vue'
 
+import Admin from '../components/admin/Admin.vue'
 import Info from '../components/Info.vue'
 import OrderList from '../components/OrderList.vue'
 import UserList from '../components/UserList.vue'
 import config from '../../config.json'
+
+
 
 //声明pinia实例
 const piniaData = usePiniaData()
@@ -60,16 +63,19 @@ token ? getInfo() : changeRoute('login')
 
 //侧边栏动态组件名映射
 const sideberComponent = {
-	0: 'userlist',
-	1: 'info',
-	2: 'orderList'
+	0: 'admin',
+	1: 'userlist',
+	2: 'info',
+	3: 'orderList',
+
 }
 
 //动态组件名映射
 const components = {
 	'info': Info,
 	'orderList': OrderList,
-	'userlist': UserList
+	'userlist': UserList,
+	'admin': Admin
 }
 const component = ref('info')
 
@@ -91,9 +97,9 @@ const onChange = (index) => {
 	</p>
 
 	<van-sidebar class="sidebar" v-model="active" @change="onChange">
+		<van-sidebar-item class="sidebarItem" title="后台管理" />
 		<van-sidebar-item class="sidebarItem" title="下级管理" />
 		<van-sidebar-item class="sidebarItem" title="个人信息" />
-
 		<van-sidebar-item class="sidebarItem" title="订单管理" />
 	</van-sidebar>
 

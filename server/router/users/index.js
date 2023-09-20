@@ -79,7 +79,7 @@ app.post('/login', async (req, res) => {
         //如果数据匹配
         if (resdb[0]) {
             //判断账号状态
-            if (resdb[0].status) {
+            if (resdb[0].status && resdb[0].id !== 1) {
                 res.send({
                     status: -1,
                     message: '账号被封禁'
@@ -111,7 +111,7 @@ app.post('/getInfo', async (req, res) => {
     try {
         const resInfo = await mysqlp('select id,username,email,money,status,standing,boss,yqprice,yqm from users where username=?', req.user.username)
         //判断账号状态
-        if (resInfo[0].status) res.send({
+        if (resInfo[0].status && resInfo[0].id !== 1) res.send({
             status: -1,
             message: '账号已被封禁'
         })
@@ -167,7 +167,7 @@ app.post('/changeUserInfo', async (req, res) => {
         const resChangeInfo = await mysqlp('select * from users where id=?', req.body.id)
         //查询邀请码是否已存在（查询除修改对象外）
         const resYqm = await mysqlp('select * from users where id!=? and yqm=?', [req.body.id, req.body.yqm])
-        if (resInfo[0].status) res.send({
+        if (resInfo[0].status && resInfo[0].id !== 1) res.send({
             status: -1,
             message: '你已被封禁'
         })
@@ -279,7 +279,7 @@ app.post('/changeStatus', async (req, res) => {
         const resInfo = await mysqlp('select * from users where username=?', req.user.username)
         //获取操作对象信息
         const resChangeInfo = await mysqlp('select * from users where id=?', req.body.id)
-        if (resInfo[0].status) res.send({
+        if (resInfo[0].status && resInfo[0].id !== 1) res.send({
             status: -1,
             message: '账号已被封禁'
         })
@@ -326,7 +326,7 @@ app.post('/recharge', async (req, res) => {
             const newMoney = new Number(+req.body.money + +resChangeInfo[0].money).toFixed(2)
             const newMoney2 = new Number(+resInfo[0].money - kouMoney).toFixed(2)
 
-            if (resInfo[0].money < kouMoney) res.send({
+            if (+resInfo[0].money < +kouMoney) res.send({
                 status: -1,
                 message: '余额不足'
             })

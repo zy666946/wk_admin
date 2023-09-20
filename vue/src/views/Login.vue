@@ -89,7 +89,7 @@ const login = async () => {
 		<div class='checkBoxArea'>
 			<label>
 				<input v-model='remember' class='checkbox' type='checkbox'>
-				<span style='position: relative;bottom: 1vw'>记住密码</span>
+				<span style='position: relative;'>记住密码</span>
 
 
 			</label>
@@ -104,11 +104,17 @@ const login = async () => {
 </template>
 <style scoped>
 .loginArea {
+	max-width: 800px;
 	margin: 0 auto;
 	margin-top: 15vh;
 	width: 85vw;
 	height: 60vh;
 
+}
+
+.checkBoxArea label input,
+.checkBoxArea label span {
+	vertical-align: top;
 }
 
 .inputArea {
@@ -149,7 +155,7 @@ const login = async () => {
 .loginBtn,
 .registerBtn {
 	height: 2rem;
-	width: 30vw;
+	width: 30%;
 	cursor: pointer;
 }
 
